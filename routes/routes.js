@@ -49,8 +49,12 @@ router.get('/test', function (req, res) {
 //   return res.render('pages/signin');
 // });
 
+//dashboard login test
 router.route('/dash').get(function (req, res) {
-    return res.render('pages/dashboard1');
+    return res.render('pages/dbtest', {
+        username: req.user.username,
+        email: req.user.email
+    });
 });
 
 router.route('/')

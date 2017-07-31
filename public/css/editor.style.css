@@ -1,0 +1,39 @@
+#editor-form-container {
+    width: 500px;
+}
+
+.editor-row {
+    margin-top: 15px;
+}
+.editor-row.form-group {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.editor-btn {
+    margin-left: 15px;
+}
+
+.editor-change-link {
+    background-color: #000;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    bottom: 0;
+    color: #fff;
+    opacity: 0.8;
+    padding: 4px;
+    position: absolute;
+    text-align: center;
+    width: 150px;
+}
+.editor-change-link:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+.editor-img-rounded {
+    width: 150px;
+}
+
+#editor-container {
+    height: 130px;
+}
