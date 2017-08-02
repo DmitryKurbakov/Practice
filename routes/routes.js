@@ -109,6 +109,10 @@ router.get('/dashboard', isLoggedIn, function (req, res) {
     });
 });
 
+router.post('/response', function (req, res) {
+    return res.send(req);
+});
+
 router.get('/logout', function (req, res) {
   req.logout();
   req.session.destroy();

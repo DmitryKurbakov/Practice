@@ -1,19 +1,19 @@
-#editor-form-container {
+#form-container {
     width: 500px;
 }
 
-.editor-row {
+.row {
     margin-top: 15px;
 }
-.editor-row.form-group {
+.row.form-group {
     padding-left: 15px;
     padding-right: 15px;
 }
-.editor-btn {
+.btn {
     margin-left: 15px;
 }
 
-.editor-change-link {
+.change-link {
     background-color: #000;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
@@ -25,12 +25,12 @@
     text-align: center;
     width: 150px;
 }
-.editor-change-link:hover {
+.change-link:hover {
     color: #fff;
     text-decoration: none;
 }
 
-.editor-img-rounded {
+img {
     width: 150px;
 }
 
