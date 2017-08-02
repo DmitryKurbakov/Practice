@@ -110,7 +110,9 @@ router.get('/dashboard', isLoggedIn, function (req, res) {
 });
 
 router.post('/response', function (req, res) {
-    return res.send(req);
+    console.log(req.body);
+    return res.send(req.body);
+
 });
 
 router.get('/logout', function (req, res) {

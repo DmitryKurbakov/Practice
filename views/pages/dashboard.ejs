@@ -209,16 +209,13 @@ $(function () {
                        url: '/response',
                        type: 'POST',
                        data: data,
-                       success: function (resp) {
-                           alert(resp);
-                       },
                        error: function (xhr, str) {
                            alert('Возникла ошибка: ' + xhr.responseCode);
                        }
                    });
 
                    // No back end to actually submit to!
-                   alert('Open the console to see the submit data!')
+                   //alert('Open the console to see the submit data!')
                    return false;
                };
 

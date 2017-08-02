@@ -52,6 +52,8 @@ db.once('disconnected', function () {
 */
 app.use(logger('dev'));
 
+app.use(bParser({limit: '50mb'}));
+
 app.use(bParser.json());
 
 app.use(bParser.urlencoded({ extended: true }));
