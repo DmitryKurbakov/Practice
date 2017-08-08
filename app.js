@@ -52,11 +52,8 @@ db.once('disconnected', function () {
 */
 app.use(logger('dev'));
 
-app.use(bParser({limit: '50mb'}));
-
-app.use(bParser.json());
-
-app.use(bParser.urlencoded({ extended: true }));
+app.use(bParser.json({limit: '50mb'}));
+app.use(bParser.urlencoded({limit: '50mb', extended: true, parameterLimit:50000}));
 
 app.use(express.static(path.join(__dirname, 'public')));
 

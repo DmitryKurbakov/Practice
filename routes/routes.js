@@ -4,7 +4,9 @@
 var
   express = require('express'),
   passport = require('../config/passport'),
-  utilities = require('../models/utilities');
+  utilities = require('../models/utilities'),
+  fs = require('fs'),
+  json2html = require('node-json2html');
 //==============================================================================
 /**
 *Create router instance
@@ -19,7 +21,7 @@ function isLoggedIn(req, res, next) {
   if(req.isAuthenticated()) {
     return next();
   }
-  return res.redirect('/login');
+  return res.redirect('/dashboard');
 }
 
 var
@@ -110,8 +112,57 @@ router.get('/dashboard', isLoggedIn, function (req, res) {
 });
 
 router.post('/response', function (req, res) {
-    console.log(req.body);
-    return res.send(req.body);
+
+    var data = JSON.parse(req.body.about);
+
+    console.log(data);
+
+    var render = require('render-quill')
+
+    render(data, function(err, output){
+        fs.writeFile('myhtml.html', output , 'utf8');
+        console.log("callback: " + output)
+    });
+
+    return res.send(data);
+    //console.log(html);
+    // var render = require('render-quill');
+    //
+    // var delta = {
+    //     ops: [{
+    //         insert: 'Hello',
+    //         attributes: {
+    //             bold: true
+    //         }
+    //     }, {
+    //         insert: ' world!!'
+    //     }]
+    // };
+    //
+    // render(delta, function(err, output){
+    //     console.log("callback: " + output)
+    // });
+
+    //var QuillDeltaToHtmlConverter = require('quill-delta-to-html');
+    // var data = req.body.about.toString();
+    // var dataa = data.splice(1, data.length);
+    // var render = require('render-quill');
+    // render(req.body.about, function(err, output){
+    //     console.log("callback: " + output);
+    //     fs.writeFile('myhtml.html', output , 'utf8');
+    //     return res.send(req.body);
+    // });
+    // var render = require('quill-render');
+    // var html = render(data);
+    // var cfg = {};
+    // var converter = new QuillDeltaToHtmlConverter(data, cfg);
+    // var html = converter.convert();
+    // var jsonMakeHTML = require('json-make-html');
+    // var html = jsonMakeHTML.make(req.body);
+    // console.log(html);
+    //var json = JSON.stringify(req.body);
+    // var transform = {'<>': 'p'};
+    // //var html = json2html.
 
 });
 
