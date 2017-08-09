@@ -5,9 +5,10 @@ var
   express = require('express'),
   passport = require('../config/passport'),
   utilities = require('../models/utilities'),
-  fs = require('fs'),
-  json2html = require('node-json2html');
+  dbutilities = require('../dbutilities/dbutilities'),
+  fs = require('fs');
 //==============================================================================
+
 /**
 *Create router instance
 */
@@ -120,8 +121,9 @@ router.post('/response', function (req, res) {
     var render = require('render-quill');
 
     render(data, function(err, output){
-        fs.writeFile('myhtml.html', output , 'utf8');
-        console.log("callback: " + output)
+        dbutilities.writeLastID(output);
+        console.log("callback: " + output);
+        dbutilities.updateLastID();
     });
 
     return res.send(data);
