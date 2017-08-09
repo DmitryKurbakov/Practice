@@ -28,7 +28,7 @@ function getNewsNumber() {
     });
 }
 
-function writeLastID(data) {
+function writeNews(data) {
     MongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
@@ -50,7 +50,7 @@ function writeLastID(data) {
     });
 }
 
-function updateLastID() {
+function updateLastID(head) {
     MongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
@@ -63,7 +63,7 @@ function updateLastID() {
             if(doc == null)
                 return;
 
-            collection.updateOne({"name" : "news"}, {$push: {"items" : {id: doc.count, title: "KOSTYL", path: "news/" + doc.count + '.html'}}}, function(err) {
+            collection.updateOne({"name" : "news"}, {$push: {"items" : {id: doc.count, title: head, path: "news/" + doc.count + '.html'}}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
@@ -88,6 +88,6 @@ function updateLastID() {
 
 module.exports = {
   getNewsNumber: getNewsNumber,
-  writeLastID: writeLastID,
+  writeNews: writeNews,
   updateLastID: updateLastID,
 };

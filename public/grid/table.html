@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script>
+        $(function(){
+            $("#selectall").click(function(){
+                $('input:checkbox').not(this).prop('checked', this.checked);
+            });
+        });
+    </script>
+</head>
+<BODY>
+    <button>Создать</button>
+    <button>Правка</button>
+    <button>Удалить</button>
+    <button>Опубликовать</button>
+
+    <table border="1">
+        <tr>
+            <th><input type="checkbox" id="selectall"/></th>
+            <th>Дата</th>
+            <th>Заголовок</th>
+            <th>Состояние</th>
+        </tr>
+        <tr>
+            <td align="center"><input type="checkbox" class="case" name="case" value="1"/></td>
+            <td>BlackBerry Bold 9650</td>
+            <td>2/5</td>
+        </tr>
+        <tr>
+            <td align="center"><input type="checkbox" class="case" name="case" value="2"/></td>
+            <td>Samsung Galaxy</td>
+            <td>3.5/5</td>
+        </tr>
+        <tr>
+            <td align="center"><input type="checkbox" class="case" name="case" value="3"/></td>
+            <td>Droid X</td>
+            <td>4.5/5</td>
+        </tr>
+        <tr>
+            <td align="center"><input type="checkbox" class="case" name="case" value="4"/></td>
+            <td>HTC Desire</td>
+            <td>3/5</td>
+        </tr>
+        <tr>
+            <td align="center"><input type="checkbox" class="case" name="case" value="5"/></td>
+            <td>Apple iPhone 4</td>
+            <td>5/5</td>
+        </tr>
+    </table>
+
+</BODY>
+</html>

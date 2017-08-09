@@ -115,15 +115,16 @@ router.get('/dashboard', isLoggedIn, function (req, res) {
 router.post('/response', function (req, res) {
 
     var data = JSON.parse(req.body.about);
+    var head = req.body.head;
 
     console.log(data);
 
     var render = require('render-quill');
 
     render(data, function(err, output){
-        dbutilities.writeLastID(output);
+        dbutilities.writeNews(output);
         console.log("callback: " + output);
-        dbutilities.updateLastID();
+        dbutilities.updateLastID(head);
     });
 
     return res.send(data);
