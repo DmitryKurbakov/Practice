@@ -5,8 +5,7 @@ var
   express = require('express'),
   passport = require('../config/passport'),
   utilities = require('../models/utilities'),
-  dbutilities = require('../dbutilities/dbutilities'),
-  fs = require('fs');
+  dbutilities = require('../dbutilities/dbutilities');
 //==============================================================================
 //DB
 var MongoClient = require('mongodb').MongoClient,
@@ -14,6 +13,8 @@ var MongoClient = require('mongodb').MongoClient,
 
 var collection;
 var cursor;
+
+var render = require('render-quill');
 //==============================================================================
 
 /**
@@ -156,9 +157,8 @@ router.get('/news-edit', function (req, res) {
             db.close();
 
             var title = doc.items[parseInt(temp)].title;
-            var num = "../../news/" + temp + ".ejs";
 
-            return res.render('pages/news-edit', { title: title, num: num});
+            return res.render('pages/news-edit', { title: title, num: "../../news/" + temp + ".ejs" });
         });
     });
 
@@ -178,12 +178,26 @@ router.post('/response', function (req, res) {
 
     console.log(data);
 
-    var render = require('render-quill');
-
     render(data, function(err, output){
         dbutilities.writeNews(output);
         console.log("callback: " + output);
         dbutilities.updateLastID(head);
+    });
+
+    return res.send(data);
+
+});
+
+router.post('/upd-raw', function (req, res) {
+
+    var data = JSON.parse(req.body.about);
+    var head = req.body.head;
+
+    console.log(data);
+
+    render(data, function(err, output){
+        dbutilities.updateRaw(temp, output, head);
+        console.log("callback: " + output);
     });
 
     return res.send(data);

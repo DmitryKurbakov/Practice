@@ -106,9 +106,49 @@ function getNewsItems() {
     });
 }
 
+function updateRaw(id, data, head) {
+
+    var fs = require('fs');
+    fs.writeFile('news/' + id + '.ejs', data , 'utf8');
+
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        console.log("Connected correctly to server");
+        collection = db.collection('news');
+
+        cursor = collection.find({"name" : "news"});
+        cursor.each(function(err, doc) {
+            if(err)
+                throw err;
+            if(doc == null)
+                return;
+
+            var date = new Date();
+            var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+
+            doc.items[id].title = head;
+            doc.items[id].date = dateStr;
+
+            collection.updateOne({"name" : "news"}, {$set: {"items" : doc.items}}, function(err) {
+                if(err)
+                    throw err;
+                console.log('entry updated');
+            });
+
+            collection.updateOne({"name" : "news"}, {$set: {"lastupd" : dateStr}}, function(err) {
+                if(err)
+                    throw err;
+                console.log('entry updated');
+            });
+        });
+    });
+
+}
+
 module.exports = {
   getNewsNumber: getNewsNumber,
   writeNews: writeNews,
   updateLastID: updateLastID,
-  getNewsItems: getNewsItems
+  getNewsItems: getNewsItems,
+  updateRaw: updateRaw
 };

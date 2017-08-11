@@ -48,7 +48,7 @@
         console.log("Submitted",$(form).serialize());
 
         jQuery.ajax({
-            url: '/response',
+            url: '/upd-raw',
             type: 'POST',
             data: $(form).serialize(),
             success: function() {
