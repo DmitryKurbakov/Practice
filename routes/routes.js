@@ -106,10 +106,37 @@ router.route('/signup')
   });
 
 router.get('/dashboard', isLoggedIn, function (req, res) {
-  return res.render('pages/dashboard', {
-    username: req.user.username,
-    email: req.user.email
+
+    var MongoClient = require('mongodb').MongoClient,
+        assert = require('assert');
+
+    var collection;
+    var cursor;
+
+    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function(err, db) {
+        assert.equal(null, err);
+        console.log("Connected correctly to server");
+        collection = db.collection('news');
+
+        cursor = collection.find({"name" : "news"});
+        cursor.each(function(err, doc) {
+            if(err)
+                throw err;
+            if(doc == null)
+                return;
+
+            db.close();
+            return res.render('pages/dashboard', {
+                items: doc.items
+            });
+        });
     });
+
+
+});
+
+router.get('/news-create', function (req, res) {
+    res.render('pages/news-create');
 });
 
 router.post('/response', function (req, res) {
