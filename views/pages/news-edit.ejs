@@ -7,12 +7,12 @@
     <form>
         <div class="form-group">
             <label for="head">Заголовок</label>
-            <input class="form-control" name="head">
+            <input class="form-control" name="head" value=<%= title %>>
         </div>
         <div class="row form-group">
             <input name="about" type="hidden">
             <div id="editor-container">
-                <p>A robot who has developed sentience, and is the only robot of his kind shown to be still functioning on Earth.</p>
+                <%- include(num) %>
             </div>
         </div>
         <div class="row">

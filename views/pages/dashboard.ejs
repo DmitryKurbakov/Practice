@@ -7,6 +7,8 @@
                $('input:checkbox').not(this).prop('checked', this.checked);
            });
        });
+
+
     </script>
 
     <div id="form-container" class="container">
@@ -14,11 +16,11 @@
            <div class="row form-group">
 
                <input type="button" onclick='location.href="/news-create"' value="Создать">
-               <button>Правка</button>
+               <input id="edit-btn" type="button" value="Правка" disabled onclick="onEditButtonClick()">
                <button>Удалить</button>
                <button>Опубликовать</button>
 
-               <table border="1">
+               <table border="1" class="tar">
                    <tr>
                        <th><input type="checkbox" id="selectall"/></th>
                        <th>Дата</th>
@@ -27,7 +29,7 @@
                    </tr>
                    <% for(var i=0; i<items.length; i++) {%>
                    <tr>
-                       <td align="center"><input type="checkbox" class="case" name="case" value=<%=i%>/></td>
+                       <td align="center"><input type="checkbox" class="case" name="case" value=<%= items[i].id %>></td>
                        <td><%= items[i].date %></td>
                        <td><%= items[i].title %></td>
                        <td><%= items[i].status %></td>
@@ -41,7 +43,36 @@
        </form>
     </div>
 
+    <script>
 
+        $('input[type="checkbox"]').change(function(event) {
+
+            if ($(".case:checked").length === 1) {
+                document.getElementById('edit-btn').disabled = false;
+            }
+            else {
+                document.getElementById('edit-btn').disabled = true;
+            }
+        });
+
+        function onEditButtonClick() {
+
+            $('input:checkbox:checked').each(function(){
+                jQuery.ajax({
+                    url: '/edit-response',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function () {
+                      location.href = '/news-edit'
+                    },
+                    error: function (xhr, str) {
+                        alert('Возникла ошибка: ' + xhr.responseCode);
+                    }
+                });
+            });
+        }
+
+    </script>
     <!---->
 
 <% include ../partials/admin-footer.ejs %>

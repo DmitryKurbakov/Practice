@@ -44,7 +44,7 @@ function writeNews(data) {
             db.close();
             console.log(doc.count);
             var fs = require('fs');
-            fs.writeFile('news/' + doc.count + '.html', data , 'utf8');
+            fs.writeFile('news/' + doc.count + '.ejs', data , 'utf8');
             return false;
         });
     });

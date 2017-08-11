@@ -8,6 +8,13 @@ var
   dbutilities = require('../dbutilities/dbutilities'),
   fs = require('fs');
 //==============================================================================
+//DB
+var MongoClient = require('mongodb').MongoClient,
+    assert = require('assert');
+
+var collection;
+var cursor;
+//==============================================================================
 
 /**
 *Create router instance
@@ -107,12 +114,6 @@ router.route('/signup')
 
 router.get('/dashboard', isLoggedIn, function (req, res) {
 
-    var MongoClient = require('mongodb').MongoClient,
-        assert = require('assert');
-
-    var collection;
-    var cursor;
-
     MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
@@ -131,12 +132,43 @@ router.get('/dashboard', isLoggedIn, function (req, res) {
             });
         });
     });
+});
+
+router.get('/news-create', function (req, res) {
+    return res.render('pages/news-create');
+});
+
+var temp;
+
+router.get('/news-edit', function (req, res) {
+    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function(err, db) {
+        assert.equal(null, err);
+        console.log("Connected correctly to server");
+        collection = db.collection('news');
+
+        cursor = collection.find({"name" : "news"});
+        cursor.each(function(err, doc) {
+            if(err)
+                throw err;
+            if(doc == null)
+                return;
+
+            db.close();
+
+            var title = doc.items[parseInt(temp)].title;
+            var num = "../../news/" + temp + ".ejs";
+
+            return res.render('pages/news-edit', { title: title, num: num});
+        });
+    });
 
 
 });
 
-router.get('/news-create', function (req, res) {
-    res.render('pages/news-create');
+router.post('/edit-response', function (req, res) {
+
+    temp = req.body.case;
+    return res.redirect('/news-edit');
 });
 
 router.post('/response', function (req, res) {
