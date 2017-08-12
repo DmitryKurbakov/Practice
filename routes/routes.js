@@ -156,9 +156,12 @@ router.get('/news-edit', function (req, res) {
 
             db.close();
 
-            var title = doc.items[parseInt(temp)].title;
-
-            return res.render('pages/news-edit', { title: title, num: "../../news/" + temp + ".ejs" });
+            for (var i = 0; i < doc.items.length; i++){
+                if (parseInt(doc.items[i].id) === parseInt(temp)){
+                    var title = doc.items[i].title;
+                    return res.render('pages/news-edit', { title: title, num: "../../news/" + temp + ".ejs" });
+                }
+            }
         });
     });
 

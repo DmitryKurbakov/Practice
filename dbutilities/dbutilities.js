@@ -151,23 +151,25 @@ function deleteRaws(items) {
             console.log(doc.count);
 
             var fs = require('fs');
-            var temparr;
 
             for (var i = 0; i < items.length; i++){
-                doc.items.splice(items[i], 1);
-                fs.unlinkSync('news/' + items[i] + '.ejs');
-                console.log('deleted');
+                for (var j = 0; j < doc.items.length; j++){
+                    if (parseInt(doc.items[j].id) === parseInt(items[i])){
+                        doc.items.splice(j, 1);
+                        fs.unlinkSync('news/' + items[i] + '.ejs');
+                        console.log('deleted');
+                    }
+                }
             }
 
-            temparr = doc.items;
 
-           collection.updateOne({"name" : "news"}, {$set: {"items" : temparr}}, function(err) {
+           collection.updateOne({"name" : "news"}, {$set: {"items" : doc.items}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
             });
 
-            collection.updateOne({"name" : "news"}, {$set: {"count" : temparr.length}}, function(err) {
+            collection.updateOne({"name" : "news"}, {$set: {"count" : doc.items.length}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
