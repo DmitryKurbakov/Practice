@@ -26,13 +26,13 @@ function getNewsNumber() {
     });
 }
 
-function writeNews(data, head) {
+function writeNews(data, head, theme) {
     MongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
-        collection = db.collection('news');
+        collection = db.collection(theme);
 
-        cursor = collection.find({"name" : "news"});
+        cursor = collection.find({"name" : theme});
         cursor.each(function(err, doc) {
             if(err)
                 throw err;
@@ -40,32 +40,32 @@ function writeNews(data, head) {
                 return;
 
             var lastid = doc.lastid + 1;
-            collection.updateOne({"name" : "news"}, {$set: {"lastid" : lastid}}, function(err) {
+            collection.updateOne({"name" : theme}, {$set: {"lastid" : lastid}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
             });
             console.log(doc.count);
             var fs = require('fs');
-            fs.writeFile('news/' + lastid + '.ejs', data , 'utf8');
+            fs.writeFile(theme + '/' + lastid + '.ejs', data , 'utf8');
 
 
             var date = new Date();
             var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
-            collection.updateOne({"name" : "news"}, {$push: {"items" : {id: lastid, title: head, date: dateStr, path: "news/" + lastid + '.ejs', status: "draft"}}}, function(err) {
+            collection.updateOne({"name" : theme}, {$push: {"items" : {id: lastid, title: head, date: dateStr, path: theme + "/" + lastid + '.ejs', status: "draft"}}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
             });
 
-            collection.updateOne({"name" : "news"}, {$set: {"count" : doc.count + 1}}, function(err) {
+            collection.updateOne({"name" : theme}, {$set: {"count" : doc.count + 1}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
             });
 
-            collection.updateOne({"name" : "news"}, {$set: {"lastupd" : dateStr}}, function(err) {
+            collection.updateOne({"name" : theme}, {$set: {"lastupd" : dateStr}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
@@ -96,17 +96,17 @@ function getNewsItems() {
     });
 }
 
-function updateRaw(id, data, head) {
+function updateRaw(id, data, head, theme) {
 
     var fs = require('fs');
-    fs.writeFile('news/' + id + '.ejs', data , 'utf8');
+    fs.writeFile(theme + '/' + id + '.ejs', data , 'utf8');
 
-    MongoClient.connect(url, function(err, db) {
+    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
-        collection = db.collection('news');
+        collection = db.collection(theme);
 
-        cursor = collection.find({"name" : "news"});
+        cursor = collection.find({"name" : theme});
         cursor.each(function(err, doc) {
             if(err)
                 throw err;
@@ -116,16 +116,22 @@ function updateRaw(id, data, head) {
             var date = new Date();
             var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
-            doc.items[id].title = head;
-            doc.items[id].date = dateStr;
+            for (var i = 0; i < doc.items.length; i++){
+                if (doc.items[i].id === parseInt(id) ){
 
-            collection.updateOne({"name" : "news"}, {$set: {"items" : doc.items}}, function(err) {
+                    doc.items[i].title = head;
+                    doc.items[i].date = dateStr;
+                }
+            }
+
+
+            collection.updateOne({"name" : theme}, {$set: {"items" : doc.items}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
             });
 
-            collection.updateOne({"name" : "news"}, {$set: {"lastupd" : dateStr}}, function(err) {
+            collection.updateOne({"name" : theme}, {$set: {"lastupd" : dateStr}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
@@ -135,13 +141,13 @@ function updateRaw(id, data, head) {
 
 }
 
-function deleteRaws(items) {
+function deleteRaws(items, theme) {
     MongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
-        collection = db.collection('news');
+        collection = db.collection(theme);
 
-        cursor = collection.find({"name" : "news"});
+        cursor = collection.find({"name" : theme});
         cursor.each(function(err, doc) {
             if(err)
                 throw err;
@@ -156,20 +162,20 @@ function deleteRaws(items) {
                 for (var j = 0; j < doc.items.length; j++){
                     if (parseInt(doc.items[j].id) === parseInt(items[i])){
                         doc.items.splice(j, 1);
-                        fs.unlinkSync('news/' + items[i] + '.ejs');
+                        fs.unlinkSync(theme + '/' + items[i] + '.ejs');
                         console.log('deleted');
                     }
                 }
             }
 
 
-           collection.updateOne({"name" : "news"}, {$set: {"items" : doc.items}}, function(err) {
+           collection.updateOne({"name" : theme}, {$set: {"items" : doc.items}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
             });
 
-            collection.updateOne({"name" : "news"}, {$set: {"count" : doc.items.length}}, function(err) {
+            collection.updateOne({"name" : theme}, {$set: {"count" : doc.items.length}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
@@ -178,7 +184,7 @@ function deleteRaws(items) {
             var date = new Date();
             var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
-            collection.updateOne({"name" : "news"}, {$set: {"lastupd" : dateStr}}, function(err) {
+            collection.updateOne({"name" : theme}, {$set: {"lastupd" : dateStr}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');

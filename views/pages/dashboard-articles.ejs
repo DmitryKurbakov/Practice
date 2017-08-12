@@ -1,0 +1,118 @@
+<% include ../partials/admin-header.ejs %>
+<!--content-->
+
+<script>
+    $(function(){
+        $("#selectall").click(function(){
+            $('input:checkbox').not(this).prop('checked', this.checked);
+        });
+    });
+
+
+</script>
+
+<div id="form-container" class="container">
+    <form>
+        <div class="row form-group">
+
+            <input type="button" onclick='location.href="/articles-create"' value="Создать">
+            <input id="edit-btn" type="button" value="Правка" disabled onclick="onEditButtonClick()">
+            <input id="delete-btn" type="button" value="Удалить" disabled onclick="scanCheckboxes()">
+            <button>Опубликовать</button>
+
+            <table border="1" class="tar">
+                <tr>
+                    <th><input type="checkbox" id="selectall"/></th>
+                    <th>Дата</th>
+                    <th>Заголовок</th>
+                    <th>Состояние</th>
+                </tr>
+                <% for(var i=0; i < items.length; i++) {%>
+                <tr>
+                    <td align="center"><input type="checkbox" class="case" name="case" value=<%= items[i].id %>></td>
+                    <td><%= items[i].date %></td>
+                    <td><%= items[i].title %></td>
+                    <td><%= items[i].status %></td>
+                </tr>
+
+                <% } %>
+
+            </table>
+        </div>
+
+    </form>
+</div>
+
+<script>
+
+    $('input[type="checkbox"]').change(function(event) {
+
+        if ($(".case:checked").length === 0) {
+            document.getElementById('delete-btn').disabled = true;
+        }
+        else {
+            document.getElementById('delete-btn').disabled = false;
+        }
+        if ($(".case:checked").length === 1) {
+            document.getElementById('edit-btn').disabled = false;
+        }
+        else {
+            document.getElementById('edit-btn').disabled = true;
+        }
+    });
+
+    function onEditButtonClick() {
+
+        $('input:checkbox:checked').each(function(){
+            jQuery.ajax({
+                url: '/articles-edit-response',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function () {
+                    location.href = '/articles-edit'
+                },
+                error: function (xhr, str) {
+                    alert('Возникла ошибка: ' + xhr.responseCode);
+                }
+            });
+        });
+    }
+
+    var program = [];
+    var data;
+
+    function scanCheckboxes() {
+        program = [];
+
+        var temparr = [];
+
+        $('input:checkbox:checked').each(function () {
+            program.push($(this).val());
+        });
+
+        for (var i = 0; i < program.length; i++){
+            if (isNum(parseInt(program[i]))) {
+                temparr.push(parseInt(program[i]));
+            }
+        }
+
+        data = {items: temparr};
+
+        jQuery.ajax({
+            url: '/articles-delete-response',
+            type: 'POST',
+            data: data,
+            error: function (xhr, str) {
+                alert('Возникла ошибка: ' + xhr.responseCode);
+            }
+        });
+
+        location.reload();
+    }
+
+    function isNum(n) {   return Number(n) === n;}
+
+</script>
+<!---->
+
+<% include ../partials/admin-footer.ejs %>
