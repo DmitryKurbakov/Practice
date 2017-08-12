@@ -171,6 +171,10 @@ router.post('/edit-response', function (req, res) {
     return res.redirect('/news-edit');
 });
 
+router.post('/delete-response', function (req, res) {
+    dbutilities.deleteRaws(req.body.items);
+});
+
 router.post('/response', function (req, res) {
 
     var data = JSON.parse(req.body.about);
@@ -179,9 +183,8 @@ router.post('/response', function (req, res) {
     console.log(data);
 
     render(data, function(err, output){
-        dbutilities.writeNews(output);
+        dbutilities.writeNews(output, head);
         console.log("callback: " + output);
-        dbutilities.updateLastID(head);
     });
 
     return res.send(data);

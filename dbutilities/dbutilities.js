@@ -2,8 +2,6 @@
 var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
 
-var newsID;
-
 var collection;
 var cursor;
 var url = 'mongodb://localhost:27017/xpressLocalAuth';
@@ -28,7 +26,7 @@ function getNewsNumber() {
     });
 }
 
-function writeNews(data) {
+function writeNews(data, head) {
     MongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
@@ -41,32 +39,21 @@ function writeNews(data) {
             if(doc == null)
                 return;
 
-            db.close();
+            var lastid = doc.lastid + 1;
+            collection.updateOne({"name" : "news"}, {$set: {"lastid" : lastid}}, function(err) {
+                if(err)
+                    throw err;
+                console.log('entry updated');
+            });
             console.log(doc.count);
             var fs = require('fs');
-            fs.writeFile('news/' + doc.count + '.ejs', data , 'utf8');
-            return false;
-        });
-    });
-}
+            fs.writeFile('news/' + lastid + '.ejs', data , 'utf8');
 
-function updateLastID(head) {
-    MongoClient.connect(url, function(err, db) {
-        assert.equal(null, err);
-        console.log("Connected correctly to server");
-        collection = db.collection('news');
-
-        cursor = collection.find({"name" : "news"});
-        cursor.each(function(err, doc) {
-            if(err)
-                throw err;
-            if(doc == null)
-                return;
 
             var date = new Date();
             var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
-            collection.updateOne({"name" : "news"}, {$push: {"items" : {id: doc.count, title: head, date: dateStr, path: "news/" + doc.count + '.html', status: "draft"}}}, function(err) {
+            collection.updateOne({"name" : "news"}, {$push: {"items" : {id: lastid, title: head, date: dateStr, path: "news/" + lastid + '.ejs', status: "draft"}}}, function(err) {
                 if(err)
                     throw err;
                 console.log('entry updated');
@@ -83,6 +70,9 @@ function updateLastID(head) {
                     throw err;
                 console.log('entry updated');
             });
+
+            db.close();
+            return false;
         });
     });
 }
@@ -145,10 +135,62 @@ function updateRaw(id, data, head) {
 
 }
 
+function deleteRaws(items) {
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        console.log("Connected correctly to server");
+        collection = db.collection('news');
+
+        cursor = collection.find({"name" : "news"});
+        cursor.each(function(err, doc) {
+            if(err)
+                throw err;
+            if(doc == null)
+                return;
+
+            console.log(doc.count);
+
+            var fs = require('fs');
+            var temparr;
+
+            for (var i = 0; i < items.length; i++){
+                doc.items.splice(items[i], 1);
+                fs.unlinkSync('news/' + items[i] + '.ejs');
+                console.log('deleted');
+            }
+
+            temparr = doc.items;
+
+           collection.updateOne({"name" : "news"}, {$set: {"items" : temparr}}, function(err) {
+                if(err)
+                    throw err;
+                console.log('entry updated');
+            });
+
+            collection.updateOne({"name" : "news"}, {$set: {"count" : temparr.length}}, function(err) {
+                if(err)
+                    throw err;
+                console.log('entry updated');
+            });
+
+            var date = new Date();
+            var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+
+            collection.updateOne({"name" : "news"}, {$set: {"lastupd" : dateStr}}, function(err) {
+                if(err)
+                    throw err;
+                console.log('entry updated');
+            });
+            db.close();
+            return false;
+        });
+    });
+}
+
 module.exports = {
   getNewsNumber: getNewsNumber,
   writeNews: writeNews,
-  updateLastID: updateLastID,
   getNewsItems: getNewsItems,
-  updateRaw: updateRaw
+  updateRaw: updateRaw,
+  deleteRaws: deleteRaws
 };
