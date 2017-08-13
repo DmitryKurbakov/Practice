@@ -6,7 +6,7 @@
     <script src="js/init.js" type="text/javascript"></script>
 </head>
 <body>
-<form id="form" class="blocks" action="#" method="post">
+<form id="form" enctype="multipart/form-data" class="blocks" action="submit-proposal" method="post">
     <p>
         <label>Имя:</label>
         <input type="text" class="text" name="name"/>
@@ -29,6 +29,7 @@
     </p>
     <p>
         <label>Файл:</label>
+        <a href="worksheet" download>Скачать файл</a>
         <input type="file" value="Загрузить"/>
     </p>
     <p>

@@ -15,11 +15,12 @@
     "ejs": "^2.3.4",
     "express": "^4.13.3",
     "express-session": "^1.12.1",
+    "mongodb": "latest",
     "mongoose": "^4.2.8",
+    "multiparty": "^4.1.3",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
-    "render-quill": "^1.0.5",
-    "mongodb": "latest"
+    "render-quill": "^1.0.5"
   },
   "devDependencies": {
     "faker": "^3.0.1",
