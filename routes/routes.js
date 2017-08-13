@@ -188,7 +188,7 @@ router.get('/news/:id', function (req, res) {
     console.log(req.params.id);
     dbutilities.getNews(req.params.id).then(function (r) {
         console.log('Blya' + r);
-        return res.render('../' + r.path, {
+        return res.render('../'+r.path, {
             item: r
         });
     });
