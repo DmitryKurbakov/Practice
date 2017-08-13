@@ -86,7 +86,7 @@ function writeNews(data, head, theme) {
     });
 }
 
-function getNews() {
+function getNews(id) {
     return MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth')
         .then(function (db, err) {
             if (err) {
@@ -101,12 +101,20 @@ function getNews() {
             if (err) {
                 throw err;
             }
-            if (doc == null || doc == undefined)
-                return;
             datbas.close();
-            console.log(doc[0].items);
-            return doc[0].items;
-        });
+            console.log('id='+id);
+            if (id == null) {
+                return doc[0].items;
+            } else {
+                return doc[0].items.find(function(element, index, array) {
+                    if(element.id = id) {
+                        return element;
+                    }
+                });
+            }
+        }).catch(function (err) {
+            console.log(err);
+        })
 }
 
 function updateRaw(id, data, head, theme) {

@@ -136,16 +136,16 @@ router.get('/dashboard', isLoggedIn, function (req, res) {
 });
 
 router.get('/dashboard-articles', isLoggedIn, function (req, res) {
-    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function(err, db) {
+    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function (err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
         collection = db.collection('articles');
 
-        cursor = collection.find({"name" : "articles"});
-        cursor.each(function(err, doc) {
-            if(err)
+        cursor = collection.find({"name": "articles"});
+        cursor.each(function (err, doc) {
+            if (err)
                 throw err;
-            if(doc == null)
+            if (doc == null)
                 return;
 
             db.close();
@@ -170,7 +170,7 @@ router.post('/articles-create-response', function (req, res) {
 
     console.log(data);
 
-    render(data, function(err, output){
+    render(data, function (err, output) {
         dbutilities.writeNews(output, head, 'articles');
         console.log("callback: " + output);
     });
@@ -189,24 +189,26 @@ router.post('/articles-edit-response', function (req, res) {
 });
 
 router.get('/articles-edit', function (req, res) {
-    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function(err, db) {
+    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function (err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
         collection = db.collection('articles');
 
-        cursor = collection.find({"name" : "articles"});
-        cursor.each(function(err, doc) {
-            if(err)
+        cursor = collection.find({"name": "articles"});
+        cursor.each(function (err, doc) {
+            if (err)
                 throw err;
-            if(doc == null)
+            if (doc == null)
                 return;
 
 
-
-            for (var i = 0; i < doc.items.length; i++){
-                if (parseInt(doc.items[i].id) === parseInt(articles)){
+            for (var i = 0; i < doc.items.length; i++) {
+                if (parseInt(doc.items[i].id) === parseInt(articles)) {
                     var title = doc.items[i].title;
-                    return res.render('pages/articles-edit', { title: title, num: "../../articles/" + articles + ".ejs" });
+                    return res.render('pages/articles-edit', {
+                        title: title,
+                        num: "../../articles/" + articles + ".ejs"
+                    });
                 }
             }
             db.close();
@@ -223,7 +225,7 @@ router.post('/articles-upd-raw', function (req, res) {
 
     console.log(data);
 
-    render(data, function(err, output){
+    render(data, function (err, output) {
         dbutilities.updateRaw(articles, output, head, 'articles');
         console.log("callback: " + output);
     });
@@ -233,22 +235,22 @@ router.post('/articles-upd-raw', function (req, res) {
 });
 
 router.get('/news-edit', function (req, res) {
-    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function(err, db) {
+    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function (err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
         collection = db.collection('news');
 
-        cursor = collection.find({"name" : "news"});
-        cursor.each(function(err, doc) {
-            if(err)
+        cursor = collection.find({"name": "news"});
+        cursor.each(function (err, doc) {
+            if (err)
                 throw err;
-            if(doc == null)
+            if (doc == null)
                 return;
 
-            for (var i = 0; i < doc.items.length; i++){
-                if (parseInt(doc.items[i].id) === parseInt(news)){
+            for (var i = 0; i < doc.items.length; i++) {
+                if (parseInt(doc.items[i].id) === parseInt(news)) {
                     var title = doc.items[i].title;
-                    return res.render('pages/news-edit', { title: title, num: "../../news/" + news + ".ejs" });
+                    return res.render('pages/news-edit', {title: title, num: "../../news/" + news + ".ejs"});
                 }
             }
             db.close();
@@ -279,7 +281,7 @@ router.post('/response', function (req, res) {
 
     console.log(data);
 
-    render(data, function(err, output){
+    render(data, function (err, output) {
         dbutilities.writeNews(output, head, 'news');
         console.log("callback: " + output);
     });
@@ -295,7 +297,7 @@ router.post('/upd-raw', function (req, res) {
 
     console.log(data);
 
-    render(data, function(err, output){
+    render(data, function (err, output) {
         dbutilities.updateRaw(news, output, head, 'news');
         console.log("callback: " + output);
     });
@@ -305,38 +307,46 @@ router.post('/upd-raw', function (req, res) {
 });
 
 router.get('/logout', function (req, res) {
-  req.logout();
-  req.session.destroy();
-  return res.redirect('/');
+    req.logout();
+    req.session.destroy();
+    return res.redirect('/');
 });
 
 router.get('/news', function (req, res) {
     dbutilities.getNews().then(function (r) {
         return res.render('pages/news.ejs', {
-            items: r});
-    })
-    // console.log('Ска мразь тупая');
-    // console.log(its);
-    //
+            items: r
+        });
+    });
+});
+
+router.get('/news/:id', function (req, res) {
+    console.log(req.params.id);
+    dbutilities.getNews(req.params.id).then(function (r) {
+        console.log('Blya' + r);
+        return res.render('../' + r.path, {
+            item: r
+        });
+    });
 });
 //---------------------------API routes-----------------------------------------
 router.get('/api/users', function (req, res) {
-  return viewAllUsers(req, res);
+    return viewAllUsers(req, res);
 });
 
 router.route('/api/users/:email')
-  .get(function (req, res) {
-    return findUser(req, res);
-  })
-  .put(function (req, res) {
-    return update(req, res);
-  })
-  .delete(function (req, res) {
-    return deleteUser(req, res);
-  });
+    .get(function (req, res) {
+        return findUser(req, res);
+    })
+    .put(function (req, res) {
+        return update(req, res);
+    })
+    .delete(function (req, res) {
+        return deleteUser(req, res);
+    });
 //==============================================================================
 /**
-*Export Module
-*/
+ *Export Module
+ */
 module.exports = router;
 //==============================================================================
