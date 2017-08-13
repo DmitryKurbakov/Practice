@@ -161,7 +161,6 @@ router.post('/articles/upd-raw', function (req, res) {
     responseHandler.updRawResponseHandler(req, articles, 'articles');
 });
 
-
 router.post('/delete-response', function (req, res) {
     dbutilities.deleteRaws(req.body.items, 'news');
 });

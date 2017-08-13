@@ -66,6 +66,7 @@ function writeNews(data, head, theme) {
                 console.log('entry updated');
             });
             console.log(doc.count);
+
             var fs = require('fs');
             fs.writeFile(theme + '/' + lastid + '.ejs', data, 'utf8');
 
