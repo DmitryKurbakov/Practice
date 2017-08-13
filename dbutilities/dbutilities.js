@@ -5,6 +5,27 @@ var collection;
 var cursor;
 var url = 'mongodb://localhost:27017/xpressLocalAuth';
 
+function getItems(theme){
+    return MongoClient.connect(url)
+        .then(function (db, err) {
+            if (err) {
+                throw err;
+            }
+            console.log("Connected correctly to server");
+            collection = db.collection(theme);
+            cursor = collection.find({"name": theme});
+            return cursor.toArray();
+        }).then(function (doc, err) {
+            if (err) {
+                throw err;
+            }
+            return doc[0].items;
+
+        }).catch(function (err) {
+            console.log(err);
+        })
+}
+
 function getNewsNumber() {
 
     MongoClient.connect(url, function (err, db) {
@@ -107,7 +128,7 @@ function getNews(id) {
                 return doc[0].items;
             } else {
                 return doc[0].items.find(function(element, index, array) {
-                    if(element.id = id) {
+                    if(element.id === parseInt(id)) {
                         return element;
                     }
                 });
@@ -158,6 +179,7 @@ function updateRaw(id, data, head, theme) {
                 console.log('entry updated');
             });
         });
+
     });
 
 }
@@ -172,7 +194,7 @@ function deleteRaws(items, theme) {
         cursor.each(function (err, doc) {
             if (err)
                 throw err;
-            if (doc == null)
+            if (doc === null)
                 return;
 
             console.log(doc.count);
@@ -216,10 +238,40 @@ function deleteRaws(items, theme) {
     });
 }
 
+function getTitle(theme, num) {
+    return MongoClient.connect(url)
+        .then(function (db, err) {
+            if (err) {
+                throw err;
+            }
+            console.log("Connected correctly to server");
+            collection = db.collection(theme);
+            cursor = collection.find({"name": theme});
+            return cursor.toArray();
+        }).then(function (doc, err) {
+            if (err) {
+                throw err;
+            }
+
+            for (var i = 0; i < doc[0].items.length; i++) {
+                if (parseInt(doc[0].items[i].id) === parseInt(num)) {
+                    return doc[0].items[i].title;
+                }
+            }
+
+        }).catch(function (err) {
+            console.log(err);
+        })
+
+
+}
+
 module.exports = {
-    getNewsNumber: getNewsNumber,
-    writeNews: writeNews,
-    getNews: getNews,
-    updateRaw: updateRaw,
-    deleteRaws: deleteRaws
+    getNewsNumber : getNewsNumber,
+    writeNews : writeNews,
+    getNews : getNews,
+    updateRaw : updateRaw,
+    deleteRaws : deleteRaws,
+    getItems : getItems,
+    getTitle : getTitle
 };

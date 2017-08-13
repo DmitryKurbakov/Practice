@@ -15,7 +15,7 @@
        <form>
            <div class="row form-group">
 
-               <input type="button" onclick='location.href="/news-create"' value="Создать">
+               <input type="button" onclick='location.href="<%= theme %>/create"' value="Создать">
                <input id="edit-btn" type="button" value="Правка" disabled onclick="onEditButtonClick()">
                <input id="delete-btn" type="button" value="Удалить" disabled onclick="scanCheckboxes()">
                <button>Опубликовать</button>
@@ -63,13 +63,15 @@
 
         function onEditButtonClick() {
 
+            var isNews = ~window.location.toString().indexOf("news");
+
             $('input:checkbox:checked').each(function(){
                 jQuery.ajax({
-                    url: '/edit-response',
+                    url: isNews ? '/news/edit-response' : '/articles/edit-response',
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function () {
-                      location.href = '/news-edit'
+                      location.href = isNews ? '/news/edit' : '/articles/edit'
                     },
                     error: function (xhr, str) {
                         alert('Возникла ошибка: ' + xhr.responseCode);

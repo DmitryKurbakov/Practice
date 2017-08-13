@@ -47,12 +47,16 @@
 
                     console.log("Submitted", $(form).serialize());
 
+                    var isNews = ~window.location.toString().indexOf("news");
+
                     jQuery.ajax({
-                        url: '/response',
+                        url: isNews ? '/news/create-response' : '/articles/create-response',
                         type: 'POST',
                         data: $(form).serialize(),
                         success: function() {
-                            setTimeout('location.replace("/dashboard")', 500);
+                            isNews ?
+                                setTimeout('location.replace("/news/dashboard")', 500)
+                                : setTimeout('location.replace("/articles/dashboard")', 500);
                         },
                         error: function (xhr, str) {
                             alert('Возникла ошибка: ' + xhr.responseCode);
