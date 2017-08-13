@@ -1,11 +1,11 @@
 /**
-*Module dependencies
-*/
+ *Module dependencies
+ */
 var
-  express = require('express'),
-  passport = require('../config/passport'),
-  utilities = require('../models/utilities'),
-  dbutilities = require('../dbutilities/dbutilities');
+    express = require('express'),
+    passport = require('../config/passport'),
+    utilities = require('../models/utilities'),
+    dbutilities = require('../dbutilities/dbutilities');
 //==============================================================================
 //DB
 var MongoClient = require('mongodb').MongoClient,
@@ -18,42 +18,42 @@ var render = require('render-quill');
 //==============================================================================
 
 /**
-*Create router instance
-*/
+ *Create router instance
+ */
 var router = express.Router();
 //==============================================================================
 /**
-*Module Variables
-*/
+ *Module Variables
+ */
 //needed to protect the '/dashboard' route
 function isLoggedIn(req, res, next) {
-  if(req.isAuthenticated()) {
-    return next();
-  }
-  return res.redirect('/dashboard');
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    return res.redirect('/dashboard');
 }
 
 var
-  errHandler = utilities.errHandler,
-  validationErr = utilities.validationErr,
-  cr8NewUser = utilities.cr8NewUser,
-  findUser = utilities.findUser,
-  viewAllUsers = utilities.viewAllUsers,
-  updateUser = utilities.updateUser,
-  deleteUser = utilities.deleteUser;
+    errHandler = utilities.errHandler,
+    validationErr = utilities.validationErr,
+    cr8NewUser = utilities.cr8NewUser,
+    findUser = utilities.findUser,
+    viewAllUsers = utilities.viewAllUsers,
+    updateUser = utilities.updateUser,
+    deleteUser = utilities.deleteUser;
 //==============================================================================
 /**
-*Middleware
-*/
+ *Middleware
+ */
 router.use(passport.initialize());
 router.use(passport.session());
 //==============================================================================
 /**
-*Routes
-*/
+ *Routes
+ */
 //---------------------------Test route-----------------------------------------
 router.get('/test', function (req, res) {
-  return res.send('<marquee><h1>Welcome to the test page</h1></marquee>');
+    return res.send('<marquee><h1>Welcome to the test page</h1></marquee>');
 });
 //---------------------------App routes-----------------------------------------
 // router.get('/', function (req, res) {
@@ -69,62 +69,62 @@ router.route('/dash').get(function (req, res) {
 });
 
 router.route('/')
-  .get(function (req, res) {
-    return res.render('pages/signin');
-  })
-  .post(function(req, res, next) {
-    passport.authenticate('local-login', function(err, user, info) {
-      if (err) {
-        return next(err); // will generate a 500 error
-      }
-      if (!user) {
-        return res.status(409).render('pages/signin', {errMsg: info.errMsg});
-      }
-      req.login(user, function(err){
-        if(err){
-          console.error(err);
-          return next(err);
-        }
-        return res.redirect('/dashboard');
-          //return res.render();
-      });
-    })(req, res, next);
-  });
+    .get(function (req, res) {
+        return res.render('pages/signin');
+    })
+    .post(function (req, res, next) {
+        passport.authenticate('local-login', function (err, user, info) {
+            if (err) {
+                return next(err); // will generate a 500 error
+            }
+            if (!user) {
+                return res.status(409).render('pages/signin', {errMsg: info.errMsg});
+            }
+            req.login(user, function (err) {
+                if (err) {
+                    console.error(err);
+                    return next(err);
+                }
+                return res.redirect('/dashboard');
+                //return res.render();
+            });
+        })(req, res, next);
+    });
 
 router.route('/signup')
-  .get(function (req, res) {
-    return res.render('pages/signup');
-  })
-  .post(function(req, res, next) {
-    passport.authenticate('local-signup', function(err, user, info) {
-      if (err) {
-        return next(err); // will generate a 500 error
-      }
-      if (!user) {
-        return res.status(409).render('pages/signup', {errMsg: info.errMsg});
-      }
-      req.login(user, function(err){
-        if(err){
-          console.error(err);
-          return next(err);
-        }
-        return res.redirect('/dashboard');
-      });
-    })(req, res, next);
-  });
+    .get(function (req, res) {
+        return res.render('pages/signup');
+    })
+    .post(function (req, res, next) {
+        passport.authenticate('local-signup', function (err, user, info) {
+            if (err) {
+                return next(err); // will generate a 500 error
+            }
+            if (!user) {
+                return res.status(409).render('pages/signup', {errMsg: info.errMsg});
+            }
+            req.login(user, function (err) {
+                if (err) {
+                    console.error(err);
+                    return next(err);
+                }
+                return res.redirect('/dashboard');
+            });
+        })(req, res, next);
+    });
 
 router.get('/dashboard', isLoggedIn, function (req, res) {
 
-    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function(err, db) {
+    MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth', function (err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
         collection = db.collection('news');
 
-        cursor = collection.find({"name" : "news"});
-        cursor.each(function(err, doc) {
-            if(err)
+        cursor = collection.find({"name": "news"});
+        cursor.each(function (err, doc) {
+            if (err)
                 throw err;
-            if(doc == null)
+            if (doc == null)
                 return;
 
             db.close();
@@ -308,6 +308,16 @@ router.get('/logout', function (req, res) {
   req.logout();
   req.session.destroy();
   return res.redirect('/');
+});
+
+router.get('/news', function (req, res) {
+    dbutilities.getNews().then(function (r) {
+        return res.render('pages/news.ejs', {
+            items: r});
+    })
+    // console.log('Ска мразь тупая');
+    // console.log(its);
+    //
 });
 //---------------------------API routes-----------------------------------------
 router.get('/api/users', function (req, res) {
