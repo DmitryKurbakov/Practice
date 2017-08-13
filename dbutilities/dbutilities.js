@@ -107,7 +107,7 @@ function getNews(id) {
                 return doc[0].items;
             } else {
                 return doc[0].items.find(function(element, index, array) {
-                    if(element.id = id) {
+                    if(element.id == id) {
                         return element;
                     }
                 });
