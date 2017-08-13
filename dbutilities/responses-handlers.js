@@ -52,9 +52,48 @@ function updRawResponseHandler(req, res, num, theme) {
     return res.send(data);
 }
 
+function signIn(passport, req, res, next) {
+    passport.authenticate('local-login', function (err, user, info) {
+        if (err) {
+            return next(err); // will generate a 500 error
+        }
+        if (!user) {
+            return res.status(409).render('pages/signin', {errMsg: info.errMsg});
+        }
+        req.login(user, function (err) {
+            if (err) {
+                console.error(err);
+                return next(err);
+            }
+            return res.redirect('/news/dashboard');
+            //return res.render();
+        });
+    })(req, res, next);
+}
+
+function signUp(req, res, next) {
+    passport.authenticate('local-signup', function (err, user, info) {
+        if (err) {
+            return next(err); // will generate a 500 error
+        }
+        if (!user) {
+            return res.status(409).render('pages/signup', {errMsg: info.errMsg});
+        }
+        req.login(user, function (err) {
+            if (err) {
+                console.error(err);
+                return next(err);
+            }
+            return res.redirect('/news/dashboard');
+        });
+    })(req, res, next);
+}
+
 module.exports = {
     dashboardHandler : dashboardHandler,
     createResponseHandler : createResponseHandler,
     editResponseHandler : editResponseHandler,
-    updRawResponseHandler : updRawResponseHandler
+    updRawResponseHandler : updRawResponseHandler,
+    signIn : signIn,
+    signUp : signUp
 };

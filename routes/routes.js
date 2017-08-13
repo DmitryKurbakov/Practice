@@ -69,22 +69,7 @@ router.route('/')
         return res.render('pages/signin');
     })
     .post(function (req, res, next) {
-        passport.authenticate('local-login', function (err, user, info) {
-            if (err) {
-                return next(err); // will generate a 500 error
-            }
-            if (!user) {
-                return res.status(409).render('pages/signin', {errMsg: info.errMsg});
-            }
-            req.login(user, function (err) {
-                if (err) {
-                    console.error(err);
-                    return next(err);
-                }
-                return res.redirect('/news/dashboard');
-                //return res.render();
-            });
-        })(req, res, next);
+        responseHandler.signIn(passport, req, res, next);
     });
 
 router.route('/signup')
@@ -92,21 +77,7 @@ router.route('/signup')
         return res.render('pages/signup');
     })
     .post(function (req, res, next) {
-        passport.authenticate('local-signup', function (err, user, info) {
-            if (err) {
-                return next(err); // will generate a 500 error
-            }
-            if (!user) {
-                return res.status(409).render('pages/signup', {errMsg: info.errMsg});
-            }
-            req.login(user, function (err) {
-                if (err) {
-                    console.error(err);
-                    return next(err);
-                }
-                return res.redirect('/news/dashboard');
-            });
-        })(req, res, next);
+        responseHandler.signUp(res, res, next);
     });
 
 router.get('/news/dashboard', isLoggedIn, function (req, res) {
@@ -161,11 +132,11 @@ router.post('/articles/upd-raw', function (req, res) {
     responseHandler.updRawResponseHandler(req, articles, 'articles');
 });
 
-router.post('/delete-response', function (req, res) {
+router.post('/news/delete-response', function (req, res) {
     dbutilities.deleteRaws(req.body.items, 'news');
 });
 
-router.post('/articles-delete-response', function (req, res) {
+router.post('/articles/delete-response', function (req, res) {
     dbutilities.deleteRaws(req.body.items, 'articles');
 });
 

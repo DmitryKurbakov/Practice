@@ -263,8 +263,32 @@ function getTitle(theme, num) {
         }).catch(function (err) {
             console.log(err);
         })
+}
 
+function checkDatabase(theme) {
+    MongoClient.connect(url, function (err, db) {
+        assert.equal(null, err);
+        console.log("Connected correctly to server");
+        collection = db.collection(theme);
 
+        cursor = collection.find({"name": theme});
+        cursor.each(function (err, doc) {
+            if (err)
+                throw err;
+            if (doc === null){
+                collection.insertOne({
+                    "name" : theme,
+                    "lastupd" : null,
+                    "count" : 0,
+                    "number" : 218,
+                    "lastid" : -1,
+                    "items" : []
+                });
+                return true;
+            }
+        });
+        return false;
+    });
 }
 
 module.exports = {
@@ -274,5 +298,6 @@ module.exports = {
     updateRaw : updateRaw,
     deleteRaws : deleteRaws,
     getItems : getItems,
-    getTitle : getTitle
+    getTitle : getTitle,
+    checkDatabase : checkDatabase
 };

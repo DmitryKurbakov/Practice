@@ -45,6 +45,8 @@
 
     <script>
 
+        var isNews = ~window.location.toString().indexOf("news");
+
         $('input[type="checkbox"]').change(function(event) {
 
             if ($(".case:checked").length === 0) {
@@ -62,8 +64,6 @@
         });
 
         function onEditButtonClick() {
-
-            var isNews = ~window.location.toString().indexOf("news");
 
             $('input:checkbox:checked').each(function(){
                 jQuery.ajax({
@@ -101,7 +101,7 @@
             data = {items: temparr};
 
             jQuery.ajax({
-                url: '/delete-response',
+                url: isNews ? '/news/delete-response' : '/articles/delete-response',
                 type: 'POST',
                 data: data,
                 error: function (xhr, str) {
@@ -109,7 +109,7 @@
                 }
             });
 
-            location.reload();
+            setTimeout(location.reload(), 500);
         }
 
         function isNum(n) {   return Number(n) === n;}
