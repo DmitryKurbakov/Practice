@@ -176,6 +176,10 @@ router.get('/logout', function (req, res) {
     return res.redirect('/');
 });
 
+router.get('/apply', function (req, res) {
+    return res.render('pages/proposal-create.ejs');
+});
+
 router.get('/news', function (req, res) {
     dbutilities.getNews().then(function (r) {
         return res.render('pages/news.ejs', {
@@ -188,7 +192,7 @@ router.get('/news/:id', function (req, res) {
     console.log(req.params.id);
     dbutilities.getNews(req.params.id).then(function (r) {
         console.log('Blya' + r);
-        return res.render('../'+r.path, {
+        return res.render('../' + r.path, {
             item: r
         });
     });
