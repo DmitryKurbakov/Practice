@@ -179,6 +179,7 @@ function updateRaw(id, data, head, theme) {
 
                     doc.items[i].title = head;
                     doc.items[i].date = dateStr;
+                    doc.items[i].status = 'draft';
                 }
             }
 
