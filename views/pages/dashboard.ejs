@@ -17,8 +17,8 @@
 
                <input type="button" onclick='location.href="<%= theme %>/create"' value="Создать">
                <input id="edit-btn" type="button" value="Правка" disabled onclick="onEditButtonClick()">
-               <input id="delete-btn" type="button" value="Удалить" disabled onclick="scanCheckboxes()">
-               <button>Опубликовать</button>
+               <input id="delete-btn" type="button" value="Удалить" disabled onclick="scanCheckboxes('delete')">
+               <input id="delete-btn" type="button" value="Опубликовать" onclick="scanCheckboxes('public')">
 
                <table border="1" class="tar">
                    <tr>
@@ -83,7 +83,7 @@
         var program = [];
         var data;
 
-        function scanCheckboxes() {
+        function scanCheckboxes(action) {
             program = [];
 
             var temparr = [];
@@ -101,7 +101,7 @@
             data = {items: temparr};
 
             jQuery.ajax({
-                url: isNews ? '/news/delete-response' : '/articles/delete-response',
+                url: isNews ? '/news/' + action + '-response' : '/articles/' + action + '-response',
                 type: 'POST',
                 data: data,
                 error: function (xhr, str) {

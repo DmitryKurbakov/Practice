@@ -49,10 +49,14 @@ function updRawResponseHandler(req, res, num, theme) {
         console.log("callback: " + output);
     });
 
-    return res.send(data);
+    return res.send(head);
 }
 
 function signIn(passport, req, res, next) {
+
+    dbutilities.checkDatabase('news');
+    dbutilities.checkDatabase('articles');
+
     passport.authenticate('local-login', function (err, user, info) {
         if (err) {
             return next(err); // will generate a 500 error
@@ -89,11 +93,20 @@ function signUp(req, res, next) {
     })(req, res, next);
 }
 
+function themeResponseHandler(res, theme) {
+    dbutilities.getNews(theme).then(function (r) {
+        return res.render('pages/theme', {
+            items: r
+        });
+    });
+}
+
 module.exports = {
     dashboardHandler : dashboardHandler,
     createResponseHandler : createResponseHandler,
     editResponseHandler : editResponseHandler,
     updRawResponseHandler : updRawResponseHandler,
+    themeResponseHandler : themeResponseHandler,
     signIn : signIn,
     signUp : signUp
 };

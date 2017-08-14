@@ -129,7 +129,7 @@ router.post('/news/upd-raw', function (req, res) {
 });
 
 router.post('/articles/upd-raw', function (req, res) {
-    responseHandler.updRawResponseHandler(req, articles, 'articles');
+    responseHandler.updRawResponseHandler(req, res, articles, 'articles');
 });
 
 router.post('/news/delete-response', function (req, res) {
@@ -138,6 +138,14 @@ router.post('/news/delete-response', function (req, res) {
 
 router.post('/articles/delete-response', function (req, res) {
     dbutilities.deleteRaws(req.body.items, 'articles');
+});
+
+router.post('/news/public-response', function (req, res) {
+    dbutilities.publishRaws(req.body.items, 'news');
+});
+
+router.post('/articles/public-response', function (req, res) {
+    dbutilities.publishRaws(req.body.items, 'articles');
 });
 
 router.get('/logout', function (req, res) {
@@ -230,11 +238,11 @@ router.post('/submit-proposal', function (req, res) {
 });
 
 router.get('/news', function (req, res) {
-    dbutilities.getNews().then(function (r) {
-        return res.render('pages/news.ejs', {
-            items: r
-        });
-    });
+    responseHandler.themeResponseHandler(res, 'news');
+});
+
+router.get('/articles', function (req, res) {
+    responseHandler.themeResponseHandler(res, 'articles');
 });
 
 router.get('/news/:id', function (req, res) {

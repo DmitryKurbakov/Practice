@@ -4,6 +4,7 @@ var MongoClient = require('mongodb').MongoClient,
 var collection;
 var cursor;
 var url = 'mongodb://localhost:27017/xpressLocalAuth';
+var autoIncrement = require("mongodb-autoincrement");
 
 function getItems(theme){
     return MongoClient.connect(url)
@@ -12,7 +13,9 @@ function getItems(theme){
                 throw err;
             }
             console.log("Connected correctly to server");
+
             collection = db.collection(theme);
+
             cursor = collection.find({"name": theme});
             return cursor.toArray();
         }).then(function (doc, err) {
@@ -59,35 +62,39 @@ function writeNews(data, head, theme) {
             if (doc == null)
                 return;
 
-            var lastid = doc.lastid + 1;
-            collection.updateOne({"name": theme}, {$set: {"lastid": lastid}}, function (err) {
-                if (err)
-                    throw err;
-                console.log('entry updated');
-            });
             console.log(doc.count);
-
-            var fs = require('fs');
-            fs.writeFile(theme + '/' + lastid + '.ejs', data, 'utf8');
-
 
             var date = new Date();
             var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
 
-            collection.updateOne({"name": theme}, {
-                $push: {
-                    "items": {
-                        id: lastid,
-                        title: head,
-                        date: dateStr,
-                        path: theme + "/" + lastid + '.ejs',
-                        status: "draft"
-                    }
-                }
-            }, function (err) {
-                if (err)
-                    throw err;
-                console.log('entry updated');
+            MongoClient.connect(url, function (err, db) {
+                autoIncrement.getNextSequence(db, theme, function (err, autoIndex) {
+                    var collection = db.collection(theme);
+                    collection.updateOne({"name": theme},{
+                        $push: {
+                            "items": {
+                                id: autoIndex,
+                                title: head,
+                                date: dateStr,
+                                path: theme + "/" + autoIndex + '.ejs',
+                                status: "draft"
+                            }
+                        }
+                }, function (err) {
+                        if (err)
+                            throw err;
+                        console.log('entry updated');
+                    });
+
+                    collection.updateOne({"name": theme}, {$set: {"lastid": autoIndex}}, function (err) {
+                        if (err)
+                            throw err;
+                        console.log('entry updated');
+                    });
+
+                    var fs = require('fs');
+                    fs.writeFile(theme + '/' + autoIndex + '.ejs', data, 'utf8');
+                });
             });
 
             collection.updateOne({"name": theme}, {$set: {"count": doc.count + 1}}, function (err) {
@@ -108,7 +115,7 @@ function writeNews(data, head, theme) {
     });
 }
 
-function getNews(id) {
+function getNews(theme, id) {
     return MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth')
         .then(function (db, err) {
             if (err) {
@@ -116,8 +123,8 @@ function getNews(id) {
             }
             datbas = db;
             console.log("Connected correctly to server");
-            collection = db.collection('news');
-            cursor = collection.find({"name": "news"});
+            collection = db.collection(theme);
+            cursor = collection.find({"name": theme});
             return cursor.toArray();
         }).then(function (doc, err) {
             if (err) {
@@ -126,7 +133,15 @@ function getNews(id) {
             datbas.close();
             console.log('id='+id);
             if (id == null) {
-                return doc[0].items;
+
+                var themes = [];
+                for (var i = 0; i < doc[0].items.length; i++){
+                    if (~doc[0].items[i].status.indexOf("published")){
+                        themes.push(doc[0].items[i]);
+                    }
+                }
+                return themes;
+
             } else {
                 return doc[0].items.find(function(element, index, array) {
                     if(element.id === parseInt(id)) {
@@ -239,6 +254,49 @@ function deleteRaws(items, theme) {
     });
 }
 
+function publishRaws(items, theme) {
+    MongoClient.connect(url, function (err, db) {
+        assert.equal(null, err);
+        console.log("Connected correctly to server");
+        collection = db.collection(theme);
+
+        cursor = collection.find({"name": theme});
+        cursor.each(function (err, doc) {
+            if (err)
+                throw err;
+            if (doc === null)
+                return;
+
+            console.log(doc.count);
+
+            for (var i = 0; i < items.length; i++) {
+                for (var j = 0; j < doc.items.length; j++) {
+                    if (parseInt(doc.items[j].id) === parseInt(items[i])) {
+                        doc.items[j].status = 'published';
+                    }
+                }
+            }
+
+            collection.updateOne({"name": theme}, {$set: {"items": doc.items}}, function (err) {
+                if (err)
+                    throw err;
+                console.log('entry updated');
+            });
+
+            var date = new Date();
+            var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+
+            collection.updateOne({"name": theme}, {$set: {"lastupd": dateStr}}, function (err) {
+                if (err)
+                    throw err;
+                console.log('entry updated');
+            });
+            db.close();
+            return false;
+        });
+    });
+}
+
 function getTitle(theme, num) {
     return MongoClient.connect(url)
         .then(function (db, err) {
@@ -271,18 +329,28 @@ function checkDatabase(theme) {
         console.log("Connected correctly to server");
         collection = db.collection(theme);
 
-        cursor = collection.find({"name": theme});
+
+        cursor = collection.find({"name" : theme});
         cursor.each(function (err, doc) {
-            if (err)
-                throw err;
-            if (doc === null){
-                collection.insertOne({
-                    "name" : theme,
-                    "lastupd" : null,
-                    "count" : 0,
-                    "number" : 218,
-                    "lastid" : -1,
-                    "items" : []
+
+            try {
+                if (doc.count > -1){
+                    return false;
+                }
+            }
+
+            catch(e) {
+                db.createCollection(theme, function (err, res) {
+                    console.log("Collection created!");
+
+                   res.insertOne({
+                       "name" : theme,
+                       "lastupd" : null,
+                       "count" : 0,
+                       "number" : 218,
+                       "lastid" : -1,
+                       "items" : []
+                   });
                 });
                 return true;
             }
@@ -299,5 +367,6 @@ module.exports = {
     deleteRaws : deleteRaws,
     getItems : getItems,
     getTitle : getTitle,
-    checkDatabase : checkDatabase
+    checkDatabase : checkDatabase,
+    publishRaws : publishRaws
 };
