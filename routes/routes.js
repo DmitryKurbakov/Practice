@@ -77,7 +77,7 @@ router.route('/signup')
         return res.render('pages/signup');
     })
     .post(function (req, res, next) {
-        responseHandler.signUp(res, res, next);
+        responseHandler.signUp(res, res, next, passport);
     });
 
 router.get('/news/dashboard', isLoggedIn, function (req, res) {

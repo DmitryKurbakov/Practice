@@ -75,7 +75,7 @@ function signIn(passport, req, res, next) {
     })(req, res, next);
 }
 
-function signUp(req, res, next) {
+function signUp(req, res, next, passport) {
     passport.authenticate('local-signup', function (err, user, info) {
         if (err) {
             return next(err); // will generate a 500 error
