@@ -75,24 +75,6 @@ function signIn(passport, req, res, next) {
     })(req, res, next);
 }
 
-function signUp(req, res, next, passport) {
-    passport.authenticate('local-signup', function (err, user, info) {
-        if (err) {
-            return next(err); // will generate a 500 error
-        }
-        if (!user) {
-            return res.status(409).render('pages/signup', {errMsg: info.errMsg});
-        }
-        req.login(user, function (err) {
-            if (err) {
-                console.error(err);
-                return next(err);
-            }
-            return res.redirect('/news/dashboard');
-        });
-    })(req, res, next);
-}
-
 function themesResponseHandler(res, theme) {
     dbutilities.getNews(theme).then(function (r) {
         return res.render('pages/themes', {
@@ -119,6 +101,5 @@ module.exports = {
     updRawResponseHandler : updRawResponseHandler,
     themesResponseHandler : themesResponseHandler,
     themeResponseHandler : themeResponseHandler,
-    signIn : signIn,
-    signUp : signUp
+    signIn : signIn
 };

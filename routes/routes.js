@@ -77,7 +77,21 @@ router.route('/signup')
         return res.render('pages/signup');
     })
     .post(function (req, res, next) {
-        responseHandler.signUp(res, res, next, passport);
+        passport.authenticate('local-signup', function (err, user, info) {
+            if (err) {
+                return next(err); // will generate a 500 error
+            }
+            if (!user) {
+                return res.status(409).render('pages/signup', {errMsg: info.errMsg});
+            }
+            req.login(user, function (err) {
+                if (err) {
+                    console.error(err);
+                    return next(err);
+                }
+                return res.redirect('/news/dashboard');
+            });
+        })(req, res, next);
     });
 
 router.get('/news/dashboard', isLoggedIn, function (req, res) {
