@@ -93,10 +93,21 @@ function signUp(req, res, next) {
     })(req, res, next);
 }
 
-function themeResponseHandler(res, theme) {
+function themesResponseHandler(res, theme) {
     dbutilities.getNews(theme).then(function (r) {
-        return res.render('pages/theme', {
-            items: r
+        return res.render('pages/themes', {
+            items : r,
+            theme : theme
+        });
+    });
+}
+
+function themeResponseHandler (req, res, theme) {
+    console.log(req.params.id);
+    dbutilities.getNews(theme, req.params.id).then(function (r) {
+        console.log('Blya' + r);
+        return res.render('../' + r.path, {
+            item: r
         });
     });
 }
@@ -106,6 +117,7 @@ module.exports = {
     createResponseHandler : createResponseHandler,
     editResponseHandler : editResponseHandler,
     updRawResponseHandler : updRawResponseHandler,
+    themesResponseHandler : themesResponseHandler,
     themeResponseHandler : themeResponseHandler,
     signIn : signIn,
     signUp : signUp

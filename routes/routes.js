@@ -238,21 +238,19 @@ router.post('/submit-proposal', function (req, res) {
 });
 
 router.get('/news', function (req, res) {
-    responseHandler.themeResponseHandler(res, 'news');
+    responseHandler.themesResponseHandler(res, 'news');
 });
 
 router.get('/articles', function (req, res) {
-    responseHandler.themeResponseHandler(res, 'articles');
+    responseHandler.themesResponseHandler(res, 'articles');
 });
 
 router.get('/news/:id', function (req, res) {
-    console.log(req.params.id);
-    dbutilities.getNews(req.params.id).then(function (r) {
-        console.log('Blya' + r);
-        return res.render('../' + r.path, {
-            item: r
-        });
-    });
+    responseHandler.themeResponseHandler(req, res, 'news');
+});
+
+router.get('/articles/:id', function (req, res) {
+    responseHandler.themeResponseHandler(req, res, 'articles');
 });
 
 router.get('/worksheet', function (req, res) {
