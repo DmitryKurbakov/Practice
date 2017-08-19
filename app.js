@@ -9,10 +9,12 @@ var
   session = require('express-session'),
   mongoose = require('mongoose'),
   mongodbStore = require('connect-mongo')(session);
+
+
 //==============================================================================
 /**
-*Create app instance
-*/
+ *Create app instance
+ */
 var app = express();
 //==============================================================================
 /**
@@ -67,6 +69,8 @@ app.use(session({
 /**
 *Routes
 */
+
+
 app.use('/', router);
 //==============================================================================
 /**

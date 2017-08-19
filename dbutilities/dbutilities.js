@@ -115,6 +115,75 @@ function writeNews(data, head, theme) {
     });
 }
 
+function writeProposals(data) {
+    MongoClient.connect(url, function (err, db) {
+        assert.equal(null, err);
+        console.log("Connected correctly to server");
+        collection = db.collection("proposals");
+
+        cursor = collection.find({"name": "proposals"});
+        cursor.each(function (err, doc) {
+            if (err)
+                throw err;
+            if (doc == null)
+                return;
+
+            console.log(doc.count);
+
+            var date = new Date();
+            var dateStr = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+
+            MongoClient.connect(url, function (err, db) {
+                autoIncrement.getNextSequence(db, "proposals", function (err, autoIndex) {
+                    var collection = db.collection("proposals");
+                    collection.updateOne({"name": "proposals"},{
+                        $push: {
+                            "items": {
+                                id: autoIndex,
+                                name: data.name,
+                                company: data.company,
+                                email: data.email,
+                                phone: data.phone,
+                                message: data.message,
+                                fileName: data.fileName,
+                                date: dateStr
+                            }
+                        }
+                    }, function (err) {
+                        if (err)
+                            throw err;
+                        console.log('entry updated');
+                    });
+
+                    collection.updateOne({"name": "proposals"}, {$set: {"lastid": autoIndex}}, function (err) {
+                        if (err)
+                            throw err;
+                        console.log('entry updated');
+                    });
+
+                    // var fs = require('fs');
+                    // fs.writeFile(theme + '/' + autoIndex + '.ejs', data, 'utf8');
+                });
+            });
+
+            collection.updateOne({"name": "proposals"}, {$set: {"count": doc.count + 1}}, function (err) {
+                if (err)
+                    throw err;
+                console.log('entry updated');
+            });
+
+            collection.updateOne({"name": "proposals"}, {$set: {"lastupd": dateStr}}, function (err) {
+                if (err)
+                    throw err;
+                console.log('entry updated');
+            });
+
+            db.close();
+            return false;
+        });
+    });
+}
+
 function getNews(theme, id) {
     return MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth')
         .then(function (db, err) {
@@ -363,6 +432,7 @@ function checkDatabase(theme) {
 module.exports = {
     getNewsNumber : getNewsNumber,
     writeNews : writeNews,
+    writeProposals: writeProposals,
     getNews : getNews,
     updateRaw : updateRaw,
     deleteRaws : deleteRaws,

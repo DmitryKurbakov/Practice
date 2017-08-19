@@ -172,83 +172,25 @@ router.get('/apply', function (req, res) {
     return res.render('pages/proposal-create.ejs');
 });
 
-router.post('/submit-proposal', function (req, res) {
+var fs = require('fs');
 
-    console.log(1);
-    fs = require("fs");
-    multiparty = require('multiparty');
-    var form = new multiparty.Form();
-    console.log(form);
-    //здесь будет храниться путь с загружаемому файлу, его тип и размер
-    var uploadFile = {uploadPath: '', type: '', size: 0};
-    //максимальный размер файла
-    var maxSize = 2 * 1024 * 1024; //2MB
-    //поддерживаемые типы(в данном случае это картинки формата jpeg,jpg и png)
-    var supportMimeTypes = ['application/msword'];
-    //массив с ошибками произошедшими в ходе загрузки файла
-    var errors = [];
+var multer  = require('multer');
 
-    //если произошла ошибка
-    form.on('error', function(err){
-        console.log('error0');
-        if(fs.existsSync(uploadFile.path)) {
-            //если загружаемый файл существует удаляем его
-            fs.unlinkSync(uploadFile.path);
-            console.log('error');
-        }
-    });
+var upload = multer({ dest: 'news/' });
 
-    form.on('close', function() {
-        console.log('close');
-        //если нет ошибок и все хорошо
-        if(errors.length == 0) {
-            //сообщаем что все хорошо
-            res.send({status: 'ok', text: 'Success'});
-        }
-        else {
-            if(fs.existsSync(uploadFile.path)) {
-                //если загружаемый файл существует удаляем его
-                fs.unlinkSync(uploadFile.path);
-            }
-            //сообщаем что все плохо и какие произошли ошибки
-            res.send({status: 'bad', errors: errors});
-        }
-    });
+router.post('/submit-proposal', upload.single('uploadedFile'), function (req, res) {
+    console.log(req.body.company);
 
-    // при поступление файла
-    form.on('part', function(part) {
-        console.log('part');
-        //читаем его размер в байтах
-        uploadFile.size = part.byteCount;
-        //читаем его тип
-        uploadFile.type = part.headers['content-type'];
-        //путь для сохранения файла
-        uploadFile.path = './files/' + part.filename;
+    console.log(req.body);
 
-        //проверяем размер файла, он не должен быть больше максимального размера
-        if(uploadFile.size > maxSize) {
-            errors.push('File size is ' + uploadFile.size + '. Limit is' + (maxSize / 1024 / 1024) + 'MB.');
-        }
+    console.log(req.file);
 
-        //проверяем является ли тип поддерживаемым
-        if(supportMimeTypes.indexOf(uploadFile.type) == -1) {
-            errors.push('Unsupported mimetype ' + uploadFile.type);
-        }
+    var data = req.body;
+    data.fileName = req.file.filename;
 
-        //если нет ошибок то создаем поток для записи файла
-        if(errors.length == 0) {
-            var out = fs.createWriteStream(uploadFile.path);
-            part.pipe(out);
-        }
-        else {
-            //пропускаем
-            //вообще здесь нужно как-то остановить загрузку и перейти к onclose
-            part.resume();
-        }
-    });
-    console.log('end');
-    // парсим форму
-    // console.log(parse(req));
+    dbutilities.writeProposals(data);
+
+    res.redirect('/news');
 });
 
 router.get('/news', function (req, res) {
