@@ -56,6 +56,7 @@ function signIn(passport, req, res, next) {
 
     dbutilities.checkDatabase('news');
     dbutilities.checkDatabase('articles');
+    dbutilities.checkDatabase('proposals');
 
     passport.authenticate('local-login', function (err, user, info) {
         if (err) {

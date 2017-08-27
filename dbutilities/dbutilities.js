@@ -413,14 +413,14 @@ function checkDatabase(theme) {
                 db.createCollection(theme, function (err, res) {
                     console.log("Collection created!");
 
-                   res.insertOne({
-                       "name" : theme,
-                       "lastupd" : null,
-                       "count" : 0,
-                       "number" : 218,
-                       "lastid" : -1,
-                       "items" : []
-                   });
+                    res.insertOne({
+                        "name": theme,
+                        "lastupd": null,
+                        "count": 0,
+                        "number": 218,
+                        "lastid": -1,
+                        "items": []
+                    });
                 });
                 return true;
             }
