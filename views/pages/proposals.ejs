@@ -1,0 +1,33 @@
+<% include ../partials/admin-header.ejs %>
+<!--content-->
+
+<script>
+    $(function(){
+        $("#selectall").click(function(){
+            $('input:checkbox').not(this).prop('checked', this.checked);
+        });
+    });
+
+
+</script>
+
+<div id="form-container" class="container">
+    <form>
+        <div class="row form-group">
+
+            <a href='/proposals-export' download>Экспорт</a>
+
+        </div>
+
+    </form>
+</div>
+
+<script>
+
+
+
+
+</script>
+<!---->
+
+<% include ../partials/admin-footer.ejs %>

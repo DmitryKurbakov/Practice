@@ -88,11 +88,38 @@ function themesResponseHandler(res, theme) {
 function themeResponseHandler (req, res, theme) {
     console.log(req.params.id);
     dbutilities.getNews(theme, req.params.id).then(function (r) {
-        console.log('Blya' + r);
+        console.log(r);
         return res.render('../' + r.path, {
             item: r
         });
     });
+}
+
+function proposalsExportResponseHandler(req, res) {
+
+    dbutilities.getApplies().then(function (docs) {
+            var fs = require('fs');
+            var json2csv = require('json2csv');
+            var fields = ['id', 'name', 'company', 'email', 'phone', 'message', 'filename', 'date'];
+            var fieldNames = ['ID', 'Name', 'Company', 'Email', 'Phone', 'Message', 'Filename', 'Date'];
+            var data = json2csv({ data: docs, fields: fields, fieldNames: fieldNames });
+            fs.writeFile('proposals.csv', data, function (err) {
+                if (err) {
+                    //Error handling
+                } else {
+                    console.log('Done');
+                    res.download('proposals.csv', 'proposals.csv', function(err) {
+                        console.log('download callback called');
+                        if( err ) {
+                            console.log('something went wrong');
+                        }
+
+                    }); // pass in the path to the newly created file
+                }
+            });
+
+            return res;
+        });
 }
 
 module.exports = {
@@ -102,5 +129,6 @@ module.exports = {
     updRawResponseHandler : updRawResponseHandler,
     themesResponseHandler : themesResponseHandler,
     themeResponseHandler : themeResponseHandler,
+    proposalsExportResponseHandler : proposalsExportResponseHandler,
     signIn : signIn
 };

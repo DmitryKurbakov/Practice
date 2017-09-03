@@ -193,6 +193,14 @@ router.post('/submit-proposal', upload.single('uploadedFile'), function (req, re
     res.redirect('/news');
 });
 
+router.get('/proposals', function (req, res) {
+    res.render('pages/proposals');
+});
+
+router.get('/proposals-export', function (req, res) {
+    responseHandler.proposalsExportResponseHandler(req, res);
+});
+
 router.get('/news', function (req, res) {
     responseHandler.themesResponseHandler(res, 'news');
 });

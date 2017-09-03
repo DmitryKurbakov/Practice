@@ -17,6 +17,7 @@
     "express": "^4.13.3",
     "express-fileupload": "^0.1.4",
     "express-session": "^1.12.1",
+    "json2csv": "^3.11.1",
     "mongodb": "latest",
     "mongodb-autoincrement": "^1.0.1",
     "mongoose": "^4.2.8",

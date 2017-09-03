@@ -429,6 +429,27 @@ function checkDatabase(theme) {
     });
 }
 
+function getApplies() {
+    return MongoClient.connect('mongodb://localhost:27017/xpressLocalAuth')
+        .then(function (db, err) {
+            if (err) {
+                throw err;
+            }
+            datbas = db;
+            console.log("Connected correctly to server");
+            collection = db.collection('proposals');
+            cursor = collection.find({"name": 'proposals'});
+            return cursor.toArray();
+        }).then(function (doc, err) {
+            if (err) {
+                throw err;
+            }
+            datbas.close();
+
+            return doc[0].items;
+        });
+}
+
 module.exports = {
     getNewsNumber : getNewsNumber,
     writeNews : writeNews,
@@ -439,5 +460,6 @@ module.exports = {
     getItems : getItems,
     getTitle : getTitle,
     checkDatabase : checkDatabase,
-    publishRaws : publishRaws
+    publishRaws : publishRaws,
+    getApplies : getApplies
 };
